@@ -4,11 +4,8 @@ import * as chai from 'chai';
 import chaiHttp = require('chai-http');
 
 import App from '../app';
-import Team from '../database/models/Team';
-import Match from '../database/models/Match';
 import * as mock from './mocks'
 import Model from '../database/models';
-import { ILeaderBoard } from '../services/LeaderBoardServices';
 
 chai.use(chaiHttp);
 const { app } = new App();

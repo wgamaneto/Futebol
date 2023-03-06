@@ -4,12 +4,11 @@ import * as chai from 'chai';
 import chaiHttp = require('chai-http');
 
 import App from '../app';
-import Server, { PORT } from '../server'
 
 chai.use(chaiHttp);
 
 const { app } = new App();
-// const { expect } = chai;
+const { expect } = chai;
 
 describe('Testes do APP', () => {
   beforeEach(() => sinon.restore())
