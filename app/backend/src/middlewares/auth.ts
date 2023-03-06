@@ -7,7 +7,7 @@ const validator = new JWT();
 const validateToken = (request: Request, _response: Response, next: NextFunction) => {
   const token = request.headers.authorization;
   if (!token) {
-    throw new JsonWebTokenError('Token must be a valid token');
+    throw new JsonWebTokenError('Token not found');
   }
   const payload = validator.verify(token);
   request.body.user = payload;
