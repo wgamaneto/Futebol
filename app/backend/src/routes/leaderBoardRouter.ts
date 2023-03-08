@@ -1,12 +1,23 @@
-import { Router } from 'express';
-import LeaderBoardController from '../controllers/LeaderBoardController';
+import { Request, Response, Router } from 'express';
+import { LeaderBoardController } from '../controllers';
 
 const leaderBoardController = new LeaderBoardController();
 
-const router = Router();
+const leaderBoardRouter = Router();
 
-router.get('/home', (req, res) => leaderBoardController.get(req, res));
-router.get('/away', (req, res) => leaderBoardController.get(req, res));
-router.get('/', (req, res) => leaderBoardController.getLeaderBoard(req, res));
+leaderBoardRouter.get(
+  '/home',
+  (req: Request, res: Response) => leaderBoardController.GetResultsHome(req, res),
+);
 
-export default router;
+leaderBoardRouter.get(
+  '/away',
+  (req: Request, res: Response) => leaderBoardController.GetResultsAway(req, res),
+);
+
+leaderBoardRouter.get(
+  '/',
+  (req: Request, res: Response) => leaderBoardController.GetResults(req, res),
+);
+
+export default leaderBoardRouter;
