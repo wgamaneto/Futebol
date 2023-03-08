@@ -1,20 +1,24 @@
 import { Request, Response } from 'express';
-import LoginServices from '../services/LoginServices';
+import createToken from '../utils/jwtUtils/token';
+import { UserService } from '../services';
 
-export default class LoginController {
-  constructor(
-    private loginService = new LoginServices(),
-  ) {}
+const errorMessage = 'Invalid email or password';
 
-  public async login(request: Request, response: Response): Promise<Response> {
-    const { email, password } = request.body;
-    const token = await this.loginService.login({ email, password });
-    return response.status(200).json({ token });
-  }
+export default class UserController {
+  constructor(private userService = new UserService()) {}
 
-  public validate(request: Request, response: Response): Response {
-    const token = request.headers.authorization as string;
-    const role = this.loginService.validate(token);
-    return response.status(200).json({ role });
+  public async UserLogin(req: Request, res: Response): Promise<Response | void> {
+    try {
+      const result = await this.userService.UserLogin(req.body);
+      if (result === null) return res.status(401).json({ message: errorMessage });
+      const token = createToken(result);
+      res.status(200).json({ token });
+    } catch (error) {
+      const err = error as Error;
+      if (err.message === errorMessage) {
+        return res.status(401).json({ message: errorMessage });
+      }
+      res.status(400).json({ message: err.message });
+    }
   }
 }

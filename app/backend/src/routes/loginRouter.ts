@@ -1,11 +1,16 @@
-import { Router } from 'express';
-import LoginController from '../controllers/LoginController';
+import { Request, Response, Router } from 'express';
+import { UserController } from '../controllers';
+import validateToken from '../middlewares/validate';
 
-const loginController = new LoginController();
+const userController = new UserController();
 
-const router = Router();
+const userRouter = Router();
 
-router.get('/validate', (req, res) => loginController.validate(req, res));
-router.post('/', (req, res) => loginController.login(req, res));
+userRouter.post('/', (req: Request, res: Response) => userController.UserLogin(req, res));
+userRouter.get(
+  '/role',
+  validateToken,
+  (req: Request, res: Response) => res.status(200).json({ role: res.locals.user.role }),
+);
 
-export default router;
+export default userRouter;
