@@ -2,52 +2,50 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('matches', {
-      id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        allowNull: false,
-        primaryKey: true
+    await queryInterface.createTable('matches',
+    {
+    id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false
+    },
+    home_team_id: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'teams',
+        key: 'id'
       },
-      homeTeamId: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'teams',
-          key: 'id'
-        },
-        field: 'home_team_id',
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE'
+    },
+    away_team_id: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'teams',
+        key: 'id'
       },
-      homeTeamGoals: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        field: 'home_team_goals',
-      },
-      awayTeamId: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'teams',
-          key: 'id'
-        },
-        field: 'away_team_id',
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
-      },
-      awayTeamGoals: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        field: 'away_team_goals',
-      },
-      inProgress: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        field: 'in_progress',
-      }
-    })
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE'
+    },
+    home_team_goals: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    away_team_goals: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    in_progress: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+    },
+  });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('matches')
+    await queryInterface.dropTable('matches');
   }
 };
