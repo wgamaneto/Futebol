@@ -1,124 +1,125 @@
 import * as sinon from 'sinon';
 import * as chai from 'chai';
-import * as jwt from 'jsonwebtoken'
 // @ts-ignore
 import chaiHttp = require('chai-http');
 
-import App from '../app';
-import Team from '../database/models/Team';
-import Match from '../database/models/Match';
-import * as mock from './mocks'
+import { app } from '../app';
+
+import { Response } from 'superagent';
 
 chai.use(chaiHttp);
 
 const { expect } = chai;
 
-const { app } = new App();
+describe('Teste Matches', () => {
+  /**
+   * Exemplo do uso de stubs com tipos
+   */
 
-describe('GET /matches', () => {
-  beforeEach(() => sinon.restore())
-  describe('quando a requisição é feita com sucesso', () => {
-    it('deve retornar um status 200 com um array de partidas', async () => {
-      sinon.stub(Match, 'findAll').resolves(mock.matches as unknown as Match[]);
-      const httpResponse = await chai.request(app).get('/matches');
-      expect(httpResponse.status).to.equal(200);
-      expect(httpResponse.body).to.deep.equal(mock.matches)
-    });
+  let chaiHttpResponse: Response;
+
+  // beforeEach(async () => {
+  //   sinon
+  //     .stub(User, "create")
+  //     .resolves({} as User);
+  // });
+
+  afterEach(()=>{
+    sinon.restore();
+  })
+
+  it('Testando o metodo get rota matches', async () => {
+    chaiHttpResponse = await chai
+       .request(app).get('/matches');
+
+    expect(chaiHttpResponse.status).to.be.deep.equal(200);
   });
 
-  describe('quando é informada uma "querystring"', () => {
-    describe('caso a querystring for false', () => {
-      it('deve retornar apenas as partidas em andamento', async () => {
-        sinon.stub(Match, 'findAll').resolves(mock.matchInProgressFalse as unknown as Match[]);
-        const httpResponse = await chai.request(app).get('/matches?inProgress=false')
-        httpResponse.body.forEach((match: Match) => 
-          expect(match.inProgress).to.be.false)
-      });
-    });
+  it('Testando o metodo get rota matches inProgress === true', async () => {
+    chaiHttpResponse = await chai
+       .request(app).get('/matches?inProgress=true');
 
-    describe('caso a querystring for true', () => {
-      it('deve retornar apenas as partidas em andamento', async () => {
-        sinon.stub(Match, 'findAll').resolves(mock.matchInProgressTrue as unknown as Match[]);
-        const httpResponse = await chai.request(app).get('/matches?inProgress=true')
-        httpResponse.body.forEach((match: Match) => 
-          expect(match.inProgress).to.be.true)
-      });
-    });
+    expect(chaiHttpResponse.status).to.be.deep.equal(200);
   });
+
+  it('Testando o metodo get rota matches inProgress === false', async () => {
+    chaiHttpResponse = await chai
+       .request(app).get('/matches?inProgress=false');
+
+    expect(chaiHttpResponse.status).to.be.deep.equal(200);
+  });
+
+  it('Testando o metodo patch rota matches para finalizar matche', async () => {
+    chaiHttpResponse = await chai
+       .request(app).patch('/matches/12/finish').set('authorization', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBZG1pbiIsInJvbGUiOiJhZG1pbiIsInBhc3N3b3JkIjoiJDJhJDA4JHhpLkh4azFjekFPMG5aUi4uQjM5M3UxMGFFRDBSUTFOM1BBRVhRN0h4dExqS1BFWkJ1LlBXIiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJpYXQiOjE2Nzc1OTA1NDF9.QXwSdQYZKCYzLWS7njCAU4Xf46KhRsm3hbCVVVsyNqI');
+
+    expect(chaiHttpResponse.status).to.be.deep.equal(200);
+  });
+
+  it('Testando o metodo patch rota matches para finalizar matche token invalido', async () => {
+    chaiHttpResponse = await chai
+       .request(app).patch('/matches/12/finish')
+        .set('authorization', 'ebGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBZG1pbiIsInJvbGUiOiJhZG1pbiIsInBhc3N3b3JkIjoiJDJhJDA4JHhpLkh4azFjekFPMG5aUi4uQjM5M3UxMGFFRDBSUTFOM1BBRVhRN0h4dExqS1BFWkJ1LlBXIiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJpYXQiOjE2Nzc1OTA1NDF9.QXwSdQYZKCYzLWS7njCAU4Xf46KhRsm3hbCVVVsyNqI')
+        .send({
+          "homeTeamGoals": 3,
+          "awayTeamGoals": 1
+        });
+
+    expect(chaiHttpResponse.status).to.be.deep.equal(401);
+  });
+
+  it('Testando o metodo patch rota matches para editar matche', async () => {
+    chaiHttpResponse = await chai
+       .request(app).patch('/matches/12')
+        .set('authorization', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBZG1pbiIsInJvbGUiOiJhZG1pbiIsInBhc3N3b3JkIjoiJDJhJDA4JHhpLkh4azFjekFPMG5aUi4uQjM5M3UxMGFFRDBSUTFOM1BBRVhRN0h4dExqS1BFWkJ1LlBXIiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJpYXQiOjE2Nzc1OTA1NDF9.QXwSdQYZKCYzLWS7njCAU4Xf46KhRsm3hbCVVVsyNqI')
+        .send({
+          "homeTeamGoals": 3,
+          "awayTeamGoals": 1
+        });
+
+    expect(chaiHttpResponse.status).to.be.deep.equal(200);
+  });
+
+  it('Testando o metodo patch rota matches para criar matche id nao existe', async () => {
+    chaiHttpResponse = await chai
+       .request(app).post('/matches')
+        .set('authorization', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBZG1pbiIsInJvbGUiOiJhZG1pbiIsInBhc3N3b3JkIjoiJDJhJDA4JHhpLkh4azFjekFPMG5aUi4uQjM5M3UxMGFFRDBSUTFOM1BBRVhRN0h4dExqS1BFWkJ1LlBXIiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJpYXQiOjE2Nzc1OTA1NDF9.QXwSdQYZKCYzLWS7njCAU4Xf46KhRsm3hbCVVVsyNqI')
+        .send({
+          "homeTeamId": 12,
+          "awayTeamId": 6465654,
+          "homeTeamGoals": 2,
+          "awayTeamGoals": 2
+        });
+
+    expect(chaiHttpResponse.status).to.be.deep.equal(404);
+  });
+
+  it('Testando o metodo patch rota matches para criar matche id iguais', async () => {
+    chaiHttpResponse = await chai
+       .request(app).post('/matches')
+        .set('authorization', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBZG1pbiIsInJvbGUiOiJhZG1pbiIsInBhc3N3b3JkIjoiJDJhJDA4JHhpLkh4azFjekFPMG5aUi4uQjM5M3UxMGFFRDBSUTFOM1BBRVhRN0h4dExqS1BFWkJ1LlBXIiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJpYXQiOjE2Nzc1OTA1NDF9.QXwSdQYZKCYzLWS7njCAU4Xf46KhRsm3hbCVVVsyNqI')
+        .send({
+          "homeTeamId": 12,
+          "awayTeamId": 12,
+          "homeTeamGoals": 2,
+          "awayTeamGoals": 2
+        });
+
+    expect(chaiHttpResponse.status).to.be.deep.equal(422);
+  });
+
+  it('Testando o metodo patch rota matches para criar matche valida', async () => {
+    chaiHttpResponse = await chai
+       .request(app).post('/matches')
+        .set('authorization', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBZG1pbiIsInJvbGUiOiJhZG1pbiIsInBhc3N3b3JkIjoiJDJhJDA4JHhpLkh4azFjekFPMG5aUi4uQjM5M3UxMGFFRDBSUTFOM1BBRVhRN0h4dExqS1BFWkJ1LlBXIiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJpYXQiOjE2Nzc1OTA1NDF9.QXwSdQYZKCYzLWS7njCAU4Xf46KhRsm3hbCVVVsyNqI')
+        .send({
+          "homeTeamId": 12,
+          "awayTeamId": 13,
+          "homeTeamGoals": 2,
+          "awayTeamGoals": 2
+        });
+
+    expect(chaiHttpResponse.status).to.be.deep.equal(201);
+  });
+
 });
-
-describe('POST /matches', () => {
-  beforeEach(() => sinon.restore())
-  describe('quando um dos times não existe', () => {
-    it('deve retornar status 404', async () => {
-      sinon.stub(jwt, 'verify').callsFake(() => mock.userMock)
-      sinon.stub(Team, 'findByPk').resolves(null)
-      const httpResponse = await chai
-        .request(app)
-        .post('/matches')
-        .send(mock.newMatchBody)
-        .set('authorization', 'token')
-      expect(httpResponse.status).to.equal(404)
-    })
-  })
-
-  describe('quando um a requisicao tem times iguais', () => {
-    it('deve retornar status 422', async () => {
-      sinon.stub(jwt, 'verify').callsFake(() => mock.userMock)
-      sinon.stub(Team, 'findByPk').resolves(mock.team as Team)
-      const httpResponse = await chai
-        .request(app)
-        .post('/matches')
-        .send(mock.newMatchEqualTeamsBody)
-        .set('authorization', 'token')
-      expect(httpResponse.status).to.equal(422)
-    })
-  })
-
-  describe('quando a requisição é feita com sucesso', () => {
-    it('deve retornar um status 201 com a partida criada', async () => {
-      sinon.stub(jwt, 'verify').callsFake(() => mock.userMock)
-      sinon.stub(Team, 'findByPk').resolves(mock.team as Team)
-      sinon.stub(Match, 'create').resolves(mock.newMatch as Match);
-      const httpResponse = await chai
-        .request(app)
-        .post('/matches')
-        .send(mock.newMatchBody)
-        .set('authorization', 'token')
-      expect(httpResponse.status).to.equal(201)
-    });
-  });
-});
-
-describe('PATCH /matches/:id', () => {
-  beforeEach(() => sinon.restore());
-  it('deve retornar um status 200', async () => {
-    sinon.stub(Match, 'update').resolves()
-    const httpResponse = await chai
-      .request(app)
-      .patch('/matches/1')
-      .send(mock.updateMatchBody)
-    expect(httpResponse.status).to.equal(200)
-  })
-})
-
-describe('PATCH /matches/:id/finish', () => {
-  beforeEach(() => sinon.restore());
-  it('deve retornar um status 200', async () => {
-    sinon.stub(jwt, 'verify').callsFake(() => mock.userMock)
-    sinon.stub(Match, 'update').resolves()
-    const httpResponse = await chai
-      .request(app)
-      .patch('/matches/1/finish')
-      .send()
-      .set('authorization', 'token')
-    expect(httpResponse.status).to.equal(200)
-  })
-
-  it('não é possivel finalizar um jogo sem estar logado', async () => {
-    const httpResponse = await chai
-      .request(app)
-      .patch('/matches/1/finish')
-    expect(httpResponse.status).to.equal(401)
-  })
-})

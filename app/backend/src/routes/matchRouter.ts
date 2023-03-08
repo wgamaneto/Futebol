@@ -1,15 +1,23 @@
-import { Router } from 'express';
-import MatchesController from '../controllers/MatchesController';
-
+import { Request, Response, Router } from 'express';
+import { MatchController } from '../controllers';
 import validateToken from '../middlewares/auth';
 
-const matchesController = new MatchesController();
-
-const router = Router();
-
-router.get('/', (req, res) => matchesController.get(req, res));
-router.post('/', validateToken, (req, res) => matchesController.add(req, res));
-router.patch('/:id/finish', validateToken, (req, res) => matchesController.endGame(req, res));
-router.patch('/:id', (req, res) => matchesController.update(req, res));
-
-export default router;
+const matcheController = new MatchController();
+const matchRouter = Router();
+matchRouter.post(
+  '/',
+  validateToken,
+  (req: Request, res: Response) => matcheController.CreateMatche(req, res),
+);
+matchRouter.get('/', (req: Request, res: Response) => matcheController.getAllMatches(req, res));
+matchRouter.patch(
+  '/:id',
+  validateToken,
+  (req: Request, res: Response) => matcheController.EditMatches(req, res),
+);
+matchRouter.patch(
+  '/:id/finish',
+  validateToken,
+  (req: Request, res: Response) => matcheController.finishMatche(req, res),
+);
+export default matchRouter;
